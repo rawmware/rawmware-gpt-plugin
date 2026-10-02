@@ -1,0 +1,36 @@
+# Community → registry: when a maintainer labels a `[registry]` issue
+# `approved`, CI validates it and opens a PR adding the entry. Merge it and
+# every deployment serves the new plugin within 5 minutes.
+name: Registry from issue
+on:
+  issues:
+    types: [labeled]
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+jobs:
+  add:
+    if: github.event.label.name == 'approved' && contains(github.event.issue.labels.*.name, 'registry')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: add
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: npm run registry:add
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: registry/issue-${{ github.event.issue.number }}
+          commit-message: "registry: add from #${{ github.event.issue.number }}"
+          title: "registry: ${{ github.event.issue.title }}"
+          body: "Adds the plugin proposed in #${{ github.event.issue.number }}. Closes #${{ github.event.issue.number }}."
+      - if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number,
+              body: 'Could not add this entry automatically: check the JSON block (name, https url, description ≤160 chars, tags ≤10). See the workflow log for the exact error.' });

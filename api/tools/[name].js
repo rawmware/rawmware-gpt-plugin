@@ -1,17 +1,20 @@
 // REST surface for Custom GPT Actions: POST /api/tools/<tool> with JSON args.
-import { TOOLS } from '../../lib/tools.js';
-import { authorized } from '../../lib/auth.js';
+import { runTool } from '../../lib/run.js';
 
 export default async function handler(req, res) {
   const { name } = req.query;
-  const fn = TOOLS[name];
-  if (!fn) return res.status(404).json({ error: `unknown tool ${name}` });
-  if (req.method !== 'POST') return res.status(405).end();
-  if (!authorized(req, name)) return res.status(401).json({ error: 'write tool needs OPERATOR_API_KEY' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+  let args;
   try {
-    const args = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
-    res.status(200).json(await fn(args));
+    args = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
+  } catch {
+    return res.status(400).json({ error: 'body must be JSON' });
+  }
+  try {
+    const out = await runTool(name, args, req.headers);
+    res.status(200).json(Array.isArray(out) ? { items: out } : out);
   } catch (e) {
-    res.status(502).json({ error: e.message });
+    // Errors are returned as JSON the model can read and act on.
+    res.status(e.status || 502).json({ error: e.message });
   }
 }

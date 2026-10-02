@@ -1,0 +1,27 @@
+# Self-update: every Monday, check every registry link and callable MCP
+# server, snapshot what's trending, and open a PR with the report in
+# docs/log/health/. The operator reads it back via `docs op:search`.
+name: Weekly refresh
+on:
+  schedule:
+    - cron: "17 13 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - run: node scripts/registry-check.js --write
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/weekly-refresh
+          commit-message: "docs: weekly ecosystem health + trends"
+          title: "Weekly refresh: ecosystem health + trends"
+          body: "Automated weekly check of registry links, callable MCP servers, and trends. Review the Needs attention section and update `registry/plugins.json` or `lib/social-specs.js` if anything changed."

@@ -1,11 +1,15 @@
 {
   "name": "rawmware-gpt-plugin",
-  "version": "1.0.0",
-  "description": "rawmware Operator — a GPT Action + MCP server: scrape, research, document, analyze, build.",
+  "version": "2.0.0",
+  "description": "rawmware Operator: a ChatGPT app (MCP) + GPT Actions server. Scrape, research, document, analyze, build. GitHub, Vercel, web, Instagram/TikTok, design taste, shared plugin registry.",
   "type": "module",
   "engines": { "node": ">=20" },
   "scripts": {
-    "test": "node --test scripts/*.test.js"
+    "test": "node --test scripts/*.test.js",
+    "registry:check": "node scripts/registry-check.js",
+    "registry:add": "node scripts/registry-add.js"
   },
+  "repository": "github:rawmware/rawmware-gpt-plugin",
+  "keywords": ["chatgpt", "gpt", "mcp", "apps-sdk", "openai", "vercel", "github", "scraping", "research", "design"],
   "license": "MIT"
 }

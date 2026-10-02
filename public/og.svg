@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0b0b0c"/>
+  <circle cx="96" cy="112" r="10" fill="#ff5a1f"/>
+  <text x="120" y="122" font-family="ui-monospace, Menlo, monospace" font-size="30" fill="#9b9ba3">rawmware/operator</text>
+  <text x="80" y="300" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="76" letter-spacing="-2.5" fill="#f3f3f2">Reads your repo, your deploys</text>
+  <text x="80" y="390" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="76" letter-spacing="-2.5" fill="#f3f3f2">and the web. Ships the fix.</text>
+  <text x="80" y="530" font-family="ui-monospace, Menlo, monospace" font-size="28" fill="#ff5a1f">scrape → research → document → analyze → build</text>
+</svg>

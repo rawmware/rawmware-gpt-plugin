@@ -1,0 +1,16 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Registry is valid JSON with unique names
+        run: node -e "const r=require('./registry/plugins.json');const n=r.plugins.map(p=>p.name.toLowerCase());if(new Set(n).size!==n.length)throw new Error('duplicate registry names');console.log(n.length,'entries ok')"

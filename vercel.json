@@ -1,7 +1,13 @@
 {
-  "functions": { "api/**/*.js": { "maxDuration": 30 } },
+  "functions": {
+    "api/**/*.js": { "maxDuration": 30, "includeFiles": "{playbooks,registry}/**" }
+  },
   "rewrites": [
     { "source": "/mcp", "destination": "/api/mcp" },
-    { "source": "/openapi.json", "destination": "/api/openapi" }
+    { "source": "/openapi.json", "destination": "/api/openapi" },
+    { "source": "/health", "destination": "/api/health" }
+  ],
+  "headers": [
+    { "source": "/(.*)", "headers": [{ "key": "x-content-type-options", "value": "nosniff" }] }
   ]
 }
