@@ -1,0 +1,16 @@
+{
+  "version": "2026.10.02",
+  "about": "Shared, community-curated registry. Propose additions via the plugins_propose tool or a PR. Every deployment reads the latest copy from main.",
+  "plugins": [
+    { "name": "rawmware-operator", "url": "https://github.com/rawmware/rawmware-gpt-plugin", "description": "Scrape, research, document, analyze, build — GitHub + Vercel + web.", "tags": ["github", "vercel", "scrape", "research", "build", "docs"] },
+    { "name": "GitHub MCP Server", "url": "https://github.com/github/github-mcp-server", "description": "Full read/write GitHub: PRs, issues, actions, code review.", "tags": ["github", "pr", "issues", "ci", "code", "review"] },
+    { "name": "Vercel MCP", "url": "https://vercel.com/docs/mcp", "description": "Vercel projects, deployments, logs, docs.", "tags": ["vercel", "deploy", "hosting", "logs", "nextjs"] },
+    { "name": "Playwright MCP", "url": "https://github.com/microsoft/playwright-mcp", "description": "Drive a real browser: click, type, screenshot, scrape JS-heavy sites.", "tags": ["browser", "scrape", "automation", "testing", "screenshot"] },
+    { "name": "Firecrawl", "url": "https://github.com/mendableai/firecrawl-mcp-server", "description": "Crawl whole sites into clean markdown.", "tags": ["scrape", "crawl", "research", "markdown"] },
+    { "name": "Context7", "url": "https://github.com/upstash/context7", "description": "Up-to-date library docs injected on demand — fewer hallucinated APIs.", "tags": ["docs", "library", "code", "research"] },
+    { "name": "Supabase MCP", "url": "https://github.com/supabase-community/supabase-mcp", "description": "Postgres schema, queries, migrations, auth.", "tags": ["database", "postgres", "backend", "auth"] },
+    { "name": "Stripe MCP", "url": "https://docs.stripe.com/mcp", "description": "Payments, products, customers, invoices.", "tags": ["payments", "business", "billing", "ecommerce"] },
+    { "name": "Figma Dev Mode MCP", "url": "https://help.figma.com/hc/en-us/articles/32132100833559", "description": "Pull design context into code.", "tags": ["design", "ui", "frontend", "figma"] },
+    { "name": "Sentry MCP", "url": "https://github.com/getsentry/sentry-mcp", "description": "Errors and traces for debugging production.", "tags": ["errors", "debug", "monitoring", "logs"] }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "rawmware-gpt-plugin",
+  "version": "1.0.0",
+  "description": "rawmware Operator — a GPT Action + MCP server: scrape, research, document, analyze, build.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test scripts/*.test.js"
+  },
+  "license": "MIT"
+}
