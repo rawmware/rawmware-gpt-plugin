@@ -1,112 +1,101 @@
 # rawmware Operator
 
-**Reads your repo, your deploys and the live web. Then ships the fix.**
-
-A ChatGPT app (MCP server, Apps SDK widget) **and** Custom GPT (Actions) that runs the loop senior engineers run:
+A developer operator for ChatGPT and any MCP client. It reads your real sources (repo, CI logs, deploy logs, live site, current library docs), finds the actual cause, and ships the fix as a PR, **acting as you** on GitHub.
 
 ```
 scrape → research → document → analyze → build
 ```
 
-It reads GitHub, Vercel, any web page, Instagram/TikTok/YouTube/X. It scores design taste, tracks what's trending, remembers past research in your repo, and calls other plugins from a shared community registry. Works in ChatGPT, Claude, Cursor, VS Code and any MCP client.
-
-Built by [rawmware](https://github.com/rawmware). Want one built for your business? [Start a project](https://github.com/rawmware/rawmware-gpt-plugin/issues/new?labels=hire&title=Project%20inquiry).
+Works as a **Custom GPT** (Actions + GitHub sign-in) and as a **ChatGPT app / MCP server** (Claude, Cursor, VS Code, ChatGPT developer mode). Zero runtime dependencies, Node 20+, deploys to Vercel as-is.
 
 ---
 
-## Use it
-| Where | How |
-|---|---|
-| **ChatGPT (GPT Store)** | Open the GPT link (set after publishing) |
-| **ChatGPT (Apps / connectors)** | Settings → Apps & Connectors → developer mode → add `https://<domain>/mcp` |
-| **Claude / Cursor / VS Code** | Add a remote MCP server: `https://<domain>/mcp` |
-| **Any HTTP client** | `POST https://<domain>/api/tools/<tool>` with JSON args · spec at `/openapi.json` |
-
-## Tools
-| Tool | What it does | Token discipline |
+## What it does
+| Job | Tool call | What you get |
 |---|---|---|
-| `web_fetch` | Scrape a URL → text / meta / links. Auto-renders JS-heavy sites | `find:` returns only matching lines; caps + `offset` paging |
-| `web_search` | Brave (keyed) or DuckDuckGo (keyless) | Title + URL + snippet only |
-| `research` | Search + read top sources in parallel, one per domain | Condensed notes, not pages |
-| `github` | **audit** (one-call health report) · repo · tree · file (`lines`) · readme · commits · issues · prs · runs · releases · search · user | ~10 useful fields, not 100 |
-| `github_write` 🔒 | **pr** (branch + commit N files + open PR, one call) · issue · comment | |
-| `vercel` | projects · project · deployments · logs (**errors first**) · env (keys only) · redeploy 🔒 | |
-| `social` | Instagram / TikTok / YouTube / X: post (oEmbed + meta) · profile (public stats) · specs (sizes, lengths, caption & hashtag limits) | |
-| `trends` | HN · GitHub trending · dev.to · npm · Reddit, by topic | Top N, short fields |
-| `design_audit` | Palette, fonts, type scale, spacing grid, radii, motion, CSS vars + taste/a11y score + top fixes | Fingerprint, not CSS |
-| `plugins` | suggest / list / propose from the shared registry (ChatGPT built-ins, OpenAI API, MCP servers, GPTs, APIs) | Ranked top 5 |
-| `plugin_call` | Call registry MCP servers directly (DeepWiki, Context7…) | Capped, cached |
-| `playbook` | Expert know-how on demand: build-loop, design-taste, social-content, launch, openai-leverage, token-economy, lessons | One section at a time |
-| `docs` | Project memory in `docs/`: list · read · **search** · write 🔒 | Excerpts only |
-| `openai` | Responses API (+ hosted web search, citations) · moderation (free). BYOK via `x-openai-key` | |
-| `about` | Who built it, live portfolio, hire link | |
-| `feedback` | Prefilled GitHub issue for bugs/ideas/praise | |
+| **CI is red** | `github op:run_logs` | Latest failed run → failed jobs/steps → first real error with context (log noise stripped) |
+| **Deploy failed** | `vercel op:logs project:x` | Latest failed deployment → first build error + context |
+| **Review a PR** | `github op:pr` | Diff (per-file patches), CI checks, review state in one call. Then `github_write op:review` with inline comments |
+| **Find code** | `github op:grep query:"regex" ext:"ts"` | `file:line: match` across the repo, no clone, any branch, private repos too |
+| **Read code** | `github op:file paths:[…] lines:"40-90"` | Up to 10 files per call, line-sliced |
+| **Ship a fix** | `github_write op:pr` | Branch + commit N files + open PR in one call. Re-run with the same branch → new commit on the same PR |
+| **Dependency risk** | `deps op:audit repo:x` | Vulnerabilities (OSV: GitHub advisories, PyPA, RustSec, Go) with fixed versions, outdated majors, deprecated packages. npm, PyPI, crates.io, Go. Reads lockfiles for exact versions |
+| **Use a library correctly** | `libdocs library:"next.js" topic:"middleware"` | Current, version-specific docs: Context7 → `llms.txt` → official docs |
+| **Is the site fast and sound?** | `site op:health` | TTFB cold/warm, size, compression, cache headers (Vercel/Cloudflare), render-blocking scripts, third parties, image CLS risks, security headers, SEO basics, robots/sitemap |
+| **Crawl docs / find broken pages** | `site op:crawl find:"auth"` | Scoped BFS crawl (stays in `/docs/`), only matching lines, broken links, slowest pages |
+| **Repo health** | `github op:audit` | Stack, scripts, CI status, tests, lockfile, committed secrets, AGENTS.md: gaps ranked by severity |
+| **Research** | `research` / `web_fetch urls:[…]` | Search with provider fallback → top sources read in parallel → condensed notes. Code blocks and tables preserved |
+| **Design system** | `site op:design` | Palette, type scale, spacing grid, radii, motion, CSS vars + taste/a11y score |
+| **Social** | `social` | Instagram/TikTok/YouTube/X post & profile data, current platform specs |
+| **What's new** | `trends`, `github op:releases` | HN, GitHub trending, dev.to, npm, Reddit; release notes |
+| **Other tools** | `plugins op:suggest` · `plugin_call` | Registry of ChatGPT built-ins, OpenAI APIs and MCP servers; calls public MCP servers (DeepWiki) directly |
+| **Project memory** | `docs op:search/write` | Research briefs committed to `docs/` in *your* repo; searched before re-researching |
 
-🔒 = needs the owner key (`Authorization: Bearer $OPERATOR_API_KEY`).
+MCP extras: tool annotations (read vs write), a ChatGPT result widget (`text/html+skybridge`), and one-click prompts: `fix_ci`, `review_pr`, `fix_deploy`, `audit_repo`, `upgrade_deps`, `research_build`, `site_check`, `design_review`, `whats_new`.
 
-MCP extras: tool **annotations** (read-only vs write hints), a **ChatGPT widget** (`text/html+skybridge`) that renders research, trends, design audits, repo audits and the portfolio as cards, and **prompts** (`audit_repo`, `fix_deploy`, `research_build`, `design_review`, `launch_content`, `whats_new`).
+## Access model
+| Who | How | Can do |
+|---|---|---|
+| Anyone | no auth | Public repos, web, deps, libdocs, site, research |
+| GitHub user | GPT: **Sign in with GitHub** (OAuth). MCP: `x-github-token` header (or `Authorization: Bearer gh…`) | Everything above **as themselves**: private repos, CI logs, PRs, reviews, docs memory in their repo. 5,000 req/hr of their own quota |
+| Vercel user | MCP: `x-vercel-token` header | Their own projects, logs, env keys, domains, redeploys |
+| OpenAI user | MCP: `x-openai-key` header | `openai` tool (Responses API + hosted web search, moderation) |
+| Owner | `Authorization: Bearer $OPERATOR_API_KEY` | Server-side Vercel/OpenAI tokens, writes with the server GitHub token (allowlisted repos) |
 
-## Design decisions (the reasoning)
-**Use the user's ChatGPT plan first.** Inside ChatGPT, Web Search, Deep Research, Python, Image Gen, Canvas and Agent are already covered by the user's plan. The GPT routes broad search, data work and image generation there, and the operator's server does only what ChatGPT can't do alone. Users get more out of their subscription; the server stays cheap. The `openai` tool exists for non-ChatGPT clients and only ever runs on the caller's own key. See [`playbooks/openai-leverage.md`](playbooks/openai-leverage.md).
+The server's tokens are never used to act for anyone else. Results fetched with a user's token are cached **per user** and never served to another.
 
-**Fewer tokens is a feature.**
-- *Cost:* tool output is paid for in money or plan limits. A raw API response or HTML page is 5–20× bigger than the useful part.
-- *Quality:* models reason worse over long, noisy context.
-- *Speed and runway:* fewer tokens means faster replies and more turns before the context fills.
-- *Repetition:* tool descriptions and instructions are re-sent **every turn**, so they're kept short and a test enforces the budget (~2k tokens for all 16 tools).
-- How: `find`, `lines`, `section`, composite calls (`audit`, `research`), errors-first logs, field picking, compact JSON, a two-tier cache, and knowledge loaded on demand. See [`playbooks/token-economy.md`](playbooks/token-economy.md).
+## Performance & token economy
+- **Trim at the source.** HTML → markdown that keeps code blocks verbatim (fenced, indentation intact) and tables as rows; nav/footers/scripts dropped; densest content container picked. API objects reduced to ~10 useful fields.
+- **Ask for slices.** `find` (only matching lines), `lines`, `paths[]`, `grep`, `section`, `mode:meta`. Logs → first error + context instead of thousands of lines.
+- **Fewer round trips.** Composite calls (`audit`, `pr`, `run_logs`, `deps audit`, `research`), batch reads (`urls[]`, `paths[]`), parallel fetches with bounded concurrency.
+- **Caching.** GitHub reads revalidate by ETag (a 304 is free and doesn't count against rate limits). Two-tier result cache (memory + optional Upstash), partitioned per user.
+- **Deadlines.** Composite tools share a time budget and return partial results instead of timing out. Body reads are capped (4MB) so a huge page can't take the function down.
+- **Reliability.** Search falls through Brave → Tavily → Serper → DuckDuckGo → DuckDuckGo Lite. JS-only pages auto-render (Browserless or Jina Reader). Context7 tool args are matched by schema, so upstream renames don't break `libdocs`.
+- **Budgets enforced in CI.** All 16 tool schemas ≈ 2.6k tokens; GPT instructions < 8,000 chars.
 
-**One ecosystem, not an island.** The registry ([`registry/plugins.json`](registry/plugins.json)) lists ChatGPT built-ins, OpenAI platform tools, MCP servers, GPTs and APIs. The operator suggests the right one for the task and can call public MCP servers itself (`plugin_call`, allowlisted, never an open relay). Anyone can propose additions in one click. Approved proposals become PRs automatically.
+Why it matters: tool output is paid for in money or plan limits, long noisy context makes models reason worse, and tool descriptions are re-sent on every turn. See [`playbooks/token-economy.md`](playbooks/token-economy.md).
 
-**MCP + Actions from one source.** [`lib/schemas.js`](lib/schemas.js) drives both the MCP `tools/list` and the live OpenAPI spec, so the GPT can never drift from the server.
+**Inside ChatGPT, built-ins go first.** Web Search, Deep Research, Python, Image Gen, Canvas and Agent are covered by the user's plan; the operator does what ChatGPT can't do alone ([`playbooks/openai-leverage.md`](playbooks/openai-leverage.md)).
 
-## How it stays current (self-updating)
-- **Registry and playbooks are read live from `main`** (5-minute cache). Merge a PR and every deployment has it, no redeploy.
-- **Community → registry:** `plugins op:propose` → prefilled issue → maintainer adds `approved` → [workflow](.github/workflows/registry-from-issue.yml) validates and opens a PR.
-- **Weekly refresh:** [workflow](.github/workflows/weekly-refresh.yml) health-checks every registry link and callable MCP server, snapshots trends, and opens a PR with a report in `docs/log/health/`. The operator reads that back through `docs op:search`.
-- **Platform facts** (Instagram/TikTok limits) live in [`lib/social-specs.js`](lib/social-specs.js) with an `as_of` date.
-- **Vercel redeploys on every push to `main`.** CI runs the test suite on every PR.
+## Security
+- SSRF guard on every outbound URL **and every redirect hop** (private, loopback, link-local, metadata, IPv4-mapped IPv6).
+- Credentials dropped when a redirect leaves the origin.
+- Writes are marked consequential (ChatGPT asks before running them); Vercel env returns keys only, never values.
+- Per-IP+identity rate limiting; constant-time owner key check.
 
 ## Deploy (≈5 min)
-1. Import this repo in Vercel (framework: Other, no build step). `public/` is the landing page; `api/` holds the functions.
-2. Env vars (see [`.env.example`](.env.example)):
-   - `GITHUB_TOKEN`: fine-grained PAT. Public read is enough for read tools; Contents + Issues + Pull requests write on your repos for 🔒 tools.
-   - `OPERATOR_API_KEY`: long random string; unlocks 🔒 tools.
-   - Optional: `VERCEL_TOKEN`, `VERCEL_TEAM_ID`, `BRAVE_API_KEY`, `BROWSERLESS_TOKEN`, `JINA_API_KEY`, `UPSTASH_REDIS_REST_URL` + `_TOKEN`, `OPENAI_API_KEY` (owner only), `META_APP_TOKEN` (Instagram oEmbed), `CONTEXT7_API_KEY`, `PUBLIC_URL`.
+1. Import this repo in Vercel (framework: Other, no build step).
+2. Env vars ([`.env.example`](.env.example)): `GITHUB_TOKEN` (read-only PAT) and, for the GPT, `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET`. Optional: search keys, `BROWSERLESS_TOKEN`, Upstash, `OPERATOR_API_KEY`.
 3. Check `https://<domain>/health`.
-4. **Custom GPT:** follow [`gpt/config.md`](gpt/config.md).
-5. **ChatGPT app / MCP:** add `https://<domain>/mcp`.
+4. **Custom GPT:** [`gpt/config.md`](gpt/config.md) (Actions from `/openapi.json`, GitHub OAuth).
+5. **MCP:** add `https://<domain>/mcp`; pass `x-github-token` / `x-vercel-token` headers in clients that support them.
 
 ## Develop
 ```bash
-npm test                         # zero dependencies, offline (fetch is mocked)
-node scripts/registry-check.js   # live health check of every registry entry
+npm test                         # 37 offline tests (fetch mocked), zero deps
+node scripts/registry-check.js   # live health check of registry entries
 ```
+
+## Self-updating
+- Registry ([`registry/plugins.json`](registry/plugins.json)) and playbooks are read live from `main` (5-min cache). Merge → live everywhere, no redeploy.
+- `[registry]` issues labeled `approved` → CI validates and opens a PR ([workflow](.github/workflows/registry-from-issue.yml)).
+- Weekly: registry link + MCP health check and trends snapshot → PR ([workflow](.github/workflows/weekly-refresh.yml)).
 
 ## Layout
 ```
-api/mcp.js              MCP endpoint (tools, resources/widget, prompts)
+api/mcp.js              MCP endpoint (tools, widget resource, prompts)
 api/tools/[name].js     REST endpoints for GPT Actions
-api/openapi.js          live OpenAPI 3.1 spec
-api/health.js           what's configured (booleans only)
-lib/schemas.js          single source of truth for tool contracts
-lib/run.js              auth → rate limit → cache → run (shared by MCP + REST)
-lib/tools/*.js          tool implementations
-lib/net.js              fetch with SSRF guard (checks every redirect hop)
-lib/cache.js            memory + Upstash cache
-lib/mcp-client.js       calls other MCP servers (plugin_call)
-lib/widget.js           ChatGPT Apps SDK result card
-lib/prompts.js          MCP prompts (one-click workflows)
-lib/social-specs.js     platform specs with as_of date
-playbooks/*.md          knowledge loaded on demand
-registry/plugins.json   shared community plugin registry
-gpt/                    GPT instructions + editor config
-public/                 landing page
-docs/                   architecture, roadmap, privacy, build log
-.github/workflows/      CI, registry-from-issue, weekly refresh
+api/openapi.js          live OpenAPI 3.1 spec (from lib/schemas.js)
+api/oauth/token.js      GitHub OAuth token exchange for GPT Actions
+api/health.js           configuration status (booleans only)
+lib/schemas.js          tool contracts: single source of truth
+lib/run.js              credentials → permission → rate limit → cache → run
+lib/auth.js             who's calling and with whose tokens
+lib/net.js              guarded fetch, capped reads, pool, deadlines
+lib/compress.js         HTML→markdown, focus, log error extraction
+lib/tools/*.js          github, vercel, deps, libdocs, site, web, social, trends, registry, knowledge, openai
+lib/mcp-client.js       calls other MCP servers (Context7, DeepWiki)
+playbooks/*.md          procedures loaded on demand
 ```
-
-## Contributing
-Found a great tool? Use `plugins op:propose` from the GPT or open an issue with the `registry` label. Bugs and ideas: `feedback` or an issue. PRs welcome; `npm test` must pass.
 
 MIT © rawmware

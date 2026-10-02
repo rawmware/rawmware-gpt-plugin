@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/**/*.js": { "maxDuration": 30, "includeFiles": "{playbooks,registry}/**" }
+    "api/**/*.js": { "maxDuration": 60, "includeFiles": "{playbooks,registry}/**" }
   },
   "rewrites": [
     { "source": "/mcp", "destination": "/api/mcp" },

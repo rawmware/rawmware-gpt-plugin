@@ -1,6 +1,6 @@
 # Design taste
 
-Taste = restraint + a system + craft in the details. It's learnable, and `design_audit` measures most of it.
+Taste = restraint + a system + craft in the details. It's learnable, and `site op:design` measures most of it.
 
 ## Principles
 1. **One idea per screen.** If you can't say what the page is for in 5 words, nothing else matters.
@@ -14,7 +14,7 @@ Taste = restraint + a system + craft in the details. It's learnable, and `design
 - **60 / 30 / 10:** 60% neutral background, 30% secondary surface/text, 10% one accent.
 - Neutrals carry the design: pick a tinted gray ramp (slightly warm or cool), not pure #000/#fff everywhere.
 - **One accent.** Use it for the primary action and almost nothing else.
-- Contrast: body text ≥ 4.5:1 (aim 7:1), large text ≥ 3:1. Check with `design_audit`.
+- Contrast: body text ≥ 4.5:1 (aim 7:1), large text ≥ 3:1. Check with `site op:design`.
 - Define in OKLCH for perceptually even ramps: `--accent: oklch(0.68 0.2 40)`.
 - Dark mode is a separate palette, not an inversion: lift surfaces in lightness, desaturate the accent slightly, never pure black text on pure white or vice versa.
 - Smells: purple-to-blue "AI gradient" everywhere, 6 saturated colors, gray text on colored backgrounds.
@@ -52,7 +52,7 @@ Taste = restraint + a system + craft in the details. It's learnable, and `design
 ## References worth studying
 Linear (restraint, motion), Vercel/Geist (type, grid, dark mode), Stripe (gradients done right, docs), Apple (hierarchy, photography), Rauno Freiberg & Emil Kowalski (interaction craft), Rasmus Andersson / Inter (type), Refactoring UI (practical rules).
 
-## Using design_audit
+## Using site op:design
 - Score ≥ 90 = disciplined. 75–89 = fine, fix the top 3. < 75 = system problems, rebuild tokens first.
 - To "match the taste" of a reference: audit both, then map the reference's tokens (scale, spacing, radii, motion, palette structure) onto the user's brand colors. Copy the *system*, never the brand.
 - Output a token file the user can paste:

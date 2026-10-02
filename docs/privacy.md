@@ -2,11 +2,10 @@
 
 _Last updated: 2026-10-02_
 
-- **What we receive:** only the arguments ChatGPT or your MCP client sends to a tool (URLs, repo names, search queries, text you ask us to process).
-- **What we do with it:** fetch public web pages, public GitHub data, public social-media metadata, and (for the owner) Vercel data, then return a trimmed result. Nothing is sold, shared or used for advertising or training.
-- **Retention:** results may be cached for up to 1 hour to make repeat requests fast and cheap (in memory and, if enabled, in an Upstash Redis cache). Standard hosting logs are kept per Vercel's retention.
-- **API keys:** if you send your own OpenAI key in the `x-openai-key` header, it's used for that single request and never stored or logged; those results are never cached.
-- **Write tools** (`github_write`, `docs write`, `vercel redeploy`) only work with the owner's key and only write to the owner's allowlisted repositories.
-- **Feedback & proposals** generate a GitHub link; nothing is posted unless you submit it yourself on GitHub.
-- **Third parties called on your behalf:** GitHub, Vercel, search providers (Brave or DuckDuckGo), rendering providers (Browserless or Jina Reader), oEmbed endpoints (TikTok, YouTube, X, Meta), OpenAI (BYOK only), and MCP servers in the registry when you use `plugin_call`.
-- **Contact:** open an issue at https://github.com/rawmware/rawmware-gpt-plugin/issues
+- **What we receive:** the arguments ChatGPT or your MCP client sends to a tool (URLs, repo names, queries, file contents you ask us to commit) and, if you connect them, your GitHub OAuth token or tokens you send in headers.
+- **What we do with it:** call GitHub, Vercel, package registries, OSV.dev, documentation sources and web pages on your behalf, and return a trimmed result. Nothing is sold, shared, or used for advertising or training.
+- **Your tokens:** used only for your request, never stored or logged, never used for anyone else. GitHub actions run as you, with exactly your GitHub permissions.
+- **Caching:** results may be cached up to 1 hour (memory, and Upstash Redis if enabled) to make repeat requests fast. Anything fetched with your token is cached under a hash of your identity and is never served to another user. Vercel env tools return variable names only, never values.
+- **Logs:** standard hosting logs per Vercel's retention.
+- **Third parties called on your behalf:** GitHub, Vercel, npm/PyPI/crates.io/Go proxy, OSV.dev, Context7, search providers (Brave/Tavily/Serper/DuckDuckGo), rendering providers (Browserless/Jina Reader), oEmbed endpoints (TikTok/YouTube/X/Meta), OpenAI (only with your own key), and registry MCP servers you call via `plugin_call`.
+- **Contact:** https://github.com/rawmware/rawmware-gpt-plugin/issues

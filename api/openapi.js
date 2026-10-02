@@ -2,7 +2,7 @@
 // the GPT can never drift from the server. In the GPT editor:
 // Actions → Import from URL → https://<your-deployment>/openapi.json
 import { SCHEMAS, VERSION } from '../lib/schemas.js';
-import { WRITE_OPS } from '../lib/auth.js';
+import { WRITE_TOOLS } from '../lib/auth.js';
 
 export function buildSpec(origin) {
   const paths = {};
@@ -12,7 +12,7 @@ export function buildSpec(origin) {
         operationId: name,
         summary: s.description.slice(0, 300),
         // Writes ask the user to confirm in ChatGPT; reads run without a prompt.
-        'x-openai-isConsequential': WRITE_OPS[name] === '*',
+        'x-openai-isConsequential': WRITE_TOOLS.has(name),
         requestBody: { required: true, content: { 'application/json': { schema: s.input } } },
         responses: {
           200: { description: 'OK', content: { 'application/json': { schema: { type: 'object', additionalProperties: true } } } },
@@ -26,7 +26,7 @@ export function buildSpec(origin) {
     info: {
       title: 'rawmware Operator',
       version: VERSION,
-      description: 'Scrape → research → document → analyze → build. GitHub, Vercel, the live web, Instagram/TikTok, design taste, and a shared plugin registry.',
+      description: 'Developer operator: GitHub (as you), Vercel, dependency security, current library docs, live-site checks, web research.',
     },
     servers: [{ url: origin }],
     paths,

@@ -13,9 +13,13 @@
 | Strip scripts/nav/footer; prefer `<main>` | `web_fetch` |
 | `find:` returns only matching lines ±context | `web_fetch`, `research`, `playbook` |
 | Hard caps with "call again with offset=N" markers | all text tools |
-| `lines:"10-80"` partial file reads | `github op:file` |
+| `lines:"10-80"` partial file reads; `paths:[…]` batch reads | `github op:file` |
+| grep instead of reading whole files | `github op:grep` |
+| Parallel multi-URL reads in one call | `web_fetch urls:[…]` |
+| Log → first error + context, not 5,000 lines | `github op:run_logs`, `vercel op:logs` |
+| ETag revalidation (304 = free, instant) | every GitHub read |
 | Pick ~10 useful fields from 100-field API objects | `github`, `vercel` |
-| Composite calls (1 call replaces 6) | `github op:audit`, `research` |
+| Composite calls (1 call replaces 6) | `github op:audit`/`op:pr`, `deps op:audit`, `research` |
 | Errors first in logs | `vercel op:logs` |
 | Compact JSON, empty fields dropped | every response |
 | Knowledge loaded on demand, one section at a time | `playbook` |

@@ -10,12 +10,13 @@ export default function handler(req, res) {
     configured: {
       github: has('GITHUB_TOKEN'),
       owner_key: has('OPERATOR_API_KEY'),
-      vercel: has('VERCEL_TOKEN'),
-      search: has('BRAVE_API_KEY') ? 'brave' : 'duckduckgo',
+      vercel_owner: has('VERCEL_TOKEN'),
+      search: ['BRAVE_API_KEY', 'TAVILY_API_KEY', 'SERPER_API_KEY'].filter(has).map((k) => k.split('_')[0].toLowerCase()).concat('duckduckgo'),
       render: has('BROWSERLESS_TOKEN') ? 'browserless' : 'jina',
       shared_cache: has('UPSTASH_REDIS_REST_URL'),
       openai_owner: has('OPENAI_API_KEY'),
       instagram_oembed: has('META_APP_TOKEN'),
+      github_oauth: has('GITHUB_CLIENT_ID'),
     },
   });
 }

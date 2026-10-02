@@ -1,6 +1,6 @@
 # Social content: Instagram, TikTok, Shorts, X, LinkedIn
 
-For builders turning shipped work into attention. Current specs live in `social op:specs` (updated in the repo). This playbook is the *how*.
+For anyone producing short-form content (devs, founders, brands). Current specs live in `social op:specs` (updated in the repo). This playbook is the *how*.
 
 ## What works for dev/AI content (2026)
 - **Show the result in second 0–2**, then how. "I built X" is weak; the finished thing doing something surprising is strong.
@@ -41,6 +41,3 @@ Repurpose one recording five ways. Use ChatGPT Image Gen for thumbnails and caro
 
 ## Analyzing a post or creator
 `social op:post url:…` / `op:profile` → note: hook (first line/frame), length, format, posting cadence, engagement relative to followers. Copy the *structure*, never the content.
-
-## Tagging big accounts (e.g. @openai, @sama)
-Big accounts respond to work that's genuinely novel AND useful, shown in 20 seconds. Make the demo undeniable, tag once, and keep shipping; attention follows consistency, not asks.

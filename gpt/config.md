@@ -1,34 +1,51 @@
 # GPT editor config
 
-Do this in your browser at chatgpt.com → Explore GPTs → Create → **Configure**.
+chatgpt.com → Explore GPTs → Create → **Configure**.
 
 **Name:** rawmware Operator
 
-**Description** (≤300 chars):
-Reads your repo, your Vercel deploys and the live web, then ships the fix. Scrape → research → document → analyze → build. Scores design taste, reads Instagram/TikTok, tracks what's trending, and finds the right plugin for every job.
+**Description:**
+Fixes red CI, failed Vercel deploys and vulnerable dependencies, reviews PRs, and opens PRs as you on GitHub, using current library docs instead of stale training data.
 
 **Instructions:** paste everything below `<!-- paste below -->` in [`instructions.md`](instructions.md).
 
-**Conversation starters** (each shows a different superpower):
-1. Audit my repo and give me the 3 highest-impact fixes as diffs: github.com/…
-2. My Vercel deploy is failing. Find out why and give me the fix.
-3. Score the design of my site against linear.app and give me a cleaner token set: …
-4. Turn my latest project into a week of Reels/TikToks with hooks and captions: …
+**Conversation starters**
+1. Why is CI failing on my repo? Fix it: github.com/…
+2. Review PR #… on owner/repo
+3. Audit dependencies in owner/repo and fix the vulnerable ones
+4. Check my site's speed, caching and headers: https://…
 
-**Knowledge:** none needed (playbooks are fetched live, so they stay current).
+**Knowledge:** none (playbooks are fetched live).
 
 **Capabilities:** ✅ Web Search · ✅ Code Interpreter & Data Analysis · ✅ Image Generation · ✅ Canvas
-(The instructions route work to these first, since they're included in the user's plan.)
 
-**Actions:** Create new action → **Import from URL** → `https://<your-vercel-domain>/openapi.json`
-- **Public GPT:** Authentication: *None*. Read tools work; 🔒 tools return a clear 401 message.
-- **Your private copy:** duplicate the GPT, set Authentication: *API Key → Bearer*, paste `OPERATOR_API_KEY`. This unlocks `github_write`, `docs write`, `vercel redeploy`.
-- **Privacy policy URL** (required to publish): `https://github.com/rawmware/rawmware-gpt-plugin/blob/main/docs/privacy.md`
+## Actions
+Create new action → **Import from URL** → `https://<your-domain>/openapi.json`
 
-**Publishing to the GPT Store**
-1. Settings → Builder profile → verify a domain (e.g. your Vercel domain) or link socials.
-2. Share → *GPT Store* → category **Programming** (or Productivity).
-3. Copy the GPT link into `GPT_URL` in `public/index.html` and the README "Use it" table.
+### Authentication: OAuth with GitHub (recommended)
+Users sign in once; every GitHub call then runs **as them** (private repos, CI logs, PRs).
+1. github.com/settings/developers → **New OAuth App**. Homepage: your domain. Callback URL: temporary (ChatGPT shows the real one after saving).
+2. In the GPT action → Authentication → **OAuth**:
+   - Client ID / Client Secret: from the OAuth app
+   - Authorization URL: `https://github.com/login/oauth/authorize`
+   - Token URL: `https://<your-domain>/api/oauth/token` (returns JSON; GitHub's own endpoint defaults to form-encoding)
+   - Scope: `repo read:user` (use `public_repo read:user` if you only want public repos)
+   - Token exchange method: Default (POST)
+3. Save, copy the **Callback URL** ChatGPT shows, and paste it into the GitHub OAuth app.
+4. Set `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` in Vercel too (the token proxy uses them if ChatGPT doesn't send them).
 
-**ChatGPT app (MCP) instead of / alongside Actions**
-Settings → Apps & Connectors → Advanced → Developer mode → Create → MCP server URL `https://<domain>/mcp`, auth *None* (or OAuth later). Apps get the result-card widget and tool annotations.
+### Alternative: no auth
+Public repos, web, deps, libdocs and site checks work; GitHub writes return a clear "connect GitHub" message.
+
+**Privacy policy URL** (required to publish): `https://github.com/rawmware/rawmware-gpt-plugin/blob/main/docs/privacy.md`
+
+## ChatGPT app (MCP)
+Settings → Apps & Connectors → Advanced → Developer mode → Create → `https://<domain>/mcp`. You get the result widget and tool annotations. For per-user GitHub/Vercel access in other MCP clients, set headers `x-github-token` / `x-vercel-token`.
+
+## Claude Code / Cursor
+```bash
+claude mcp add --transport http rawmware https://<domain>/mcp --header "x-github-token: $GITHUB_TOKEN"
+```
+```json
+{ "mcpServers": { "rawmware": { "url": "https://<domain>/mcp", "headers": { "x-github-token": "ghp_…", "x-vercel-token": "…" } } } }
+```

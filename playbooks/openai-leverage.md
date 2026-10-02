@@ -14,8 +14,12 @@ Principle: **route each job to whatever already pays for it.** The user's ChatGP
 | Click through a website, fill forms, multi-step web tasks | ChatGPT **Agent** | Has its own browser |
 | Persistent context for one project | ChatGPT **Projects + Memory** | Stops re-explaining |
 | Work inside a repo, run tests, open PRs at scale | **Codex** | Purpose-built coding agent |
-| GitHub/Vercel data, repo audit, deploy logs | operator `github` / `vercel` | ChatGPT can't reach these alone |
-| Design tokens + taste score | operator `design_audit` | Unique to the operator |
+| GitHub as the user: grep, PRs, CI logs, open PRs | operator `github` / `github_write` | ChatGPT can't reach these alone |
+| Deploy logs, env keys, domains | operator `vercel` | User's own token |
+| Current library docs before coding | operator `libdocs` | Version-specific; beats stale training data |
+| Vulnerable / outdated dependencies | operator `deps` | OSV + registries in one call |
+| Live site speed, caching, headers, broken pages | operator `site op:health / crawl` | Measured, not guessed |
+| Design tokens + taste score | operator `site op:design` | Unique to the operator |
 | IG/TikTok post & profile data, platform specs | operator `social` | Structured, current |
 | What's trending for builders | operator `trends` | HN/GitHub/dev.to/npm in one call |
 | Which tool should I use? | operator `plugins op:suggest` | Shared registry incl. builtins |

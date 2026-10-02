@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>rawmware Operator</title>
-<meta name="description" content="The ChatGPT operator that reads your repo, your deploys and the live web, then ships the fix. Scrape → research → document → analyze → build.">
+<meta name="description" content="Developer operator for ChatGPT and MCP: fixes red CI and failed deploys, reviews PRs, audits dependencies, reads current library docs, and opens PRs as you.">
 <meta property="og:title" content="rawmware Operator">
-<meta property="og:description" content="Reads your repo, your deploys and the live web, then ships the fix. Works in ChatGPT, Claude, Cursor and any MCP client.">
+<meta property="og:description" content="Fixes red CI and failed deploys, reviews PRs, audits dependencies, and opens PRs as you. ChatGPT + MCP.">
 <meta property="og:image" content="/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0b0b0c">
@@ -66,24 +66,20 @@
   .tool p { margin: var(--s2) 0 0; color: var(--muted); font-size: 14.5px; line-height: 1.5; }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s7); align-items: start; }
   ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean code { font: 13px/1.5 var(--mono); background: var(--code); padding: 1px 6px; border-radius: var(--r-sm); word-break: break-word; }
   ul.clean li { padding: var(--s3) 0; border-top: 1px solid var(--line); display: flex; gap: var(--s3); }
   ul.clean li:first-child { border-top: 0; }
   ul.clean .k { font: 500 13px/1.6 var(--mono); color: var(--accent); min-width: 88px; }
   .stat { font: 700 clamp(40px, 6vw, 56px)/1 var(--sans); letter-spacing: -0.04em; }
   .stat small { font: 400 15px/1.4 var(--sans); color: var(--muted); display: block; letter-spacing: 0; margin-top: var(--s2); }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); margin-top: var(--s6); }
-  .hire { background: var(--fg); color: var(--bg); border-radius: var(--r-md); padding: var(--s7) var(--s6); }
-  .hire h2 { color: var(--bg); }
-  .hire p { color: color-mix(in oklab, var(--bg) 70%, var(--fg)); max-width: 56ch; }
-  .hire .btn { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
-  footer { padding: var(--s7) 0; color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--s3); }
+    footer { padding: var(--s7) 0; color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--s3); }
   @media (max-width: 820px) {
     .loop { grid-template-columns: 1fr; }
     .two { grid-template-columns: 1fr; gap: var(--s6); }
     .stats { grid-template-columns: 1fr; }
     nav a:not(:last-child) { display: none; }
     .hero { padding-top: var(--s6); }
-    .hire { padding: var(--s6) var(--s5); }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -102,11 +98,11 @@
   <main>
     <div class="hero">
       <div class="eyebrow">ChatGPT app · MCP server · open source</div>
-      <h1>Reads your repo, your deploys and the web. Then ships the fix.</h1>
-      <p class="lede">rawmware Operator runs the loop senior engineers run: scrape primary sources, research what changed, document it, decide, build. It works inside ChatGPT, Claude, Cursor and any MCP client, and it uses the tools your ChatGPT plan already includes first.</p>
+      <h1>Finds the actual cause. Ships the fix as you.</h1>
+      <p class="lede">CI logs, deploy logs, PR diffs, dependency advisories, current library docs and live-site measurements: read at the source, trimmed to what matters, and turned into a PR that runs as you on GitHub. Works in ChatGPT, Claude, Cursor and any MCP client.</p>
       <div class="ctas">
-        <a class="btn primary" id="gpt-link" href="https://github.com/rawmware/rawmware-gpt-plugin#use-it">Add to ChatGPT →</a>
-        <a class="btn" href="https://github.com/rawmware/rawmware-gpt-plugin">Star on GitHub</a>
+        <a class="btn primary" id="gpt-link" href="https://github.com/rawmware/rawmware-gpt-plugin/blob/main/gpt/config.md">Add to ChatGPT →</a>
+        <a class="btn" href="https://github.com/rawmware/rawmware-gpt-plugin">Source</a>
       </div>
       <div class="endpoint">MCP endpoint <code id="mcp-url">/mcp</code><button class="copy" id="copy" type="button">copy</button></div>
     </div>
@@ -124,21 +120,21 @@
     </section>
 
     <section id="tools" aria-labelledby="tools-h">
-      <h2 id="tools-h">16 tools, one connector</h2>
-      <p class="sub">Each one trims its output at the source, so you get the answer, not the noise.</p>
+      <h2 id="tools-h">Built for the jobs that block you</h2>
+      <p class="sub">Each tool trims its output at the source and does in one call what usually takes five.</p>
       <div class="grid">
-        <div class="tool"><code>github op:audit</code><p>Stack, CI status, tests, license, committed secrets and the top gaps, all from one call.</p></div>
-        <div class="tool"><code>vercel op:logs</code><p>Failing deploy → errors first → the exact line that broke it.</p></div>
-        <div class="tool"><code>web_fetch find:</code><p>Scrape any page; return only the lines that matter. Renders JS-heavy sites.</p></div>
-        <div class="tool"><code>research</code><p>Search and read the top sources in parallel, one per domain, as condensed notes.</p></div>
-        <div class="tool"><code>design_audit</code><p>Extracts palette, type scale, spacing, radii, motion. Scores taste and accessibility.</p></div>
-        <div class="tool"><code>social</code><p>Instagram, TikTok, YouTube, X: post and profile data plus current specs and limits.</p></div>
-        <div class="tool"><code>trends</code><p>What's moving on HN, GitHub trending, dev.to, npm and Reddit right now.</p></div>
-        <div class="tool"><code>plugins · plugin_call</code><p>A shared registry of <span id="reg-count">30+</span> tools. Suggests the right one and calls MCP servers directly.</p></div>
-        <div class="tool"><code>playbook</code><p>Expert know-how on demand: design taste, short-form content, launch, OpenAI leverage.</p></div>
-        <div class="tool"><code>docs</code><p>Project memory in your repo. Searches past research before redoing it.</p></div>
-        <div class="tool"><code>github_write op:pr</code><p>Branch, commit and open a PR in one call (owner key).</p></div>
-        <div class="tool"><code>openai</code><p>Responses API with web search, plus free moderation, for non-ChatGPT clients. Bring your own key.</p></div>
+        <div class="tool"><code>github op:run_logs</code><p>Latest failed CI run → failed step → first real error with context.</p></div>
+        <div class="tool"><code>vercel op:logs</code><p>Latest failed deployment → first build error. Your token, your projects.</p></div>
+        <div class="tool"><code>github op:pr</code><p>Diff, CI checks and review state in one call; inline review comments back.</p></div>
+        <div class="tool"><code>github op:grep</code><p>Regex across any repo or branch, private included. No clone.</p></div>
+        <div class="tool"><code>github_write op:pr</code><p>Branch, commit N files, open the PR. Re-run to push more commits to it.</p></div>
+        <div class="tool"><code>deps op:audit</code><p>OSV vulnerabilities with fixed versions, outdated majors, deprecations. npm, PyPI, crates, Go.</p></div>
+        <div class="tool"><code>libdocs</code><p>Current, version-specific docs: Context7, then llms.txt, then official docs.</p></div>
+        <div class="tool"><code>site op:health</code><p>TTFB cold/warm, caching, compression, security headers, blocking scripts, SEO.</p></div>
+        <div class="tool"><code>site op:crawl</code><p>Scoped crawl of a docs section: matching lines only, broken pages, slowest pages.</p></div>
+        <div class="tool"><code>research · web_fetch</code><p>Search with provider fallback, parallel reads, code blocks kept verbatim.</p></div>
+        <div class="tool"><code>github op:audit</code><p>Stack, CI status, tests, lockfile, committed secrets: gaps ranked by severity.</p></div>
+        <div class="tool"><code>plugins · plugin_call</code><p>ChatGPT built-ins, OpenAI APIs, MCP servers: picks the right one, calls public ones.</p></div>
       </div>
     </section>
 
@@ -162,23 +158,26 @@
             <li><span class="k">builtin</span><span>Broad search, reports, data, images: covered by your plan.</span></li>
             <li><span class="k">operator</span><span>GitHub, Vercel, page-level scraping, design, social, registry.</span></li>
             <li><span class="k">registry</span><span>Everything else: Context7, DeepWiki, Supabase, Stripe, Figma…</span></li>
-            <li><span class="k">updates</span><span>Registry and playbooks update from GitHub without a redeploy. A weekly CI job health-checks every plugin.</span></li>
+            <li><span class="k">yours</span><span>GitHub and Vercel calls run with your own tokens: your private repos, your PRs, your quota.</span></li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section aria-labelledby="hire-h">
-      <div class="hire">
-        <h2 id="hire-h">Want one built for your business?</h2>
-        <p>rawmware builds custom GPTs, ChatGPT apps and MCP servers, AI automations, and fast websites with a real design system. NH Seacoast and remote.</p>
-        <a class="btn" href="https://github.com/rawmware/rawmware-gpt-plugin/issues/new?labels=hire&title=Project%20inquiry">Start a project →</a>
-      </div>
+    <section aria-labelledby="connect-h">
+      <h2 id="connect-h">Connect</h2>
+      <p class="sub">Act as yourself: sign in with GitHub in the GPT, or pass your tokens as headers in any MCP client. Server tokens are never used on your behalf.</p>
+      <ul class="clean">
+        <li><span class="k">ChatGPT</span><span>GPT with Actions from <code>/openapi.json</code> and GitHub OAuth, or developer-mode app at <code>/mcp</code>.</span></li>
+        <li><span class="k">Claude</span><span><code>claude mcp add --transport http rawmware &lt;domain&gt;/mcp --header "x-github-token: …"</code></span></li>
+        <li><span class="k">Cursor</span><span><code>mcpServers.rawmware = { url, headers: { x-github-token, x-vercel-token } }</code></span></li>
+        <li><span class="k">HTTP</span><span><code>POST /api/tools/&lt;tool&gt;</code> with JSON args.</span></li>
+      </ul>
     </section>
   </main>
 
   <footer>
-    <span>Built by <a href="https://github.com/rawmware">rawmware</a> · MIT</span>
+    <span><a href="https://github.com/rawmware/rawmware-gpt-plugin">rawmware/rawmware-gpt-plugin</a> · MIT</span>
     <span><a href="/health">status</a> · <a href="/openapi.json">openapi</a> · <a href="https://github.com/rawmware/rawmware-gpt-plugin/blob/main/docs/privacy.md">privacy</a></span>
   </footer>
 </div>
@@ -192,10 +191,6 @@
     var b = this;
     try { navigator.clipboard.writeText(mcpUrl).then(function () { b.textContent = 'copied'; setTimeout(function () { b.textContent = 'copy'; }, 1500); }); } catch (e) {}
   });
-  fetch('/api/tools/plugins', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"op":"list"}' })
-    .then(function (r) { return r.json(); })
-    .then(function (j) { if (j.count) document.getElementById('reg-count').textContent = j.count; })
-    .catch(function () {});
 </script>
 </body>
 </html>
